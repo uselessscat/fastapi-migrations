@@ -9,4 +9,7 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-.installed.cfg
+*.dist-info/
+
+# virtual environmnents
+venv/
