@@ -4,3 +4,4 @@ pytest
 # packaging
 setuptools
 wheel
+twine

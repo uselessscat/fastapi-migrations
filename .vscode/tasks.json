@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "options": {
+    "cwd": "${workspaceFolder}"
+  },
+  "tasks": [
+    {
+      "group": "test",
+      "label": "Run tests",
+      "type": "shell",
+      "command": "venv/Scripts/pytest",
+      "args": ["--ignore=venv/*", "tests/*"],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "group": "test",
+      "label": "Run coverage",
+      "type": "shell",
+      "command": "venv/Scripts/coverage",
+      "args": [
+        "run",
+        "--omit=venv/*",
+        "-m",
+        "pytest",
+        "--ignore=venv/*",
+        "tests/*"
+      ],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "group": "test",
+      "label": "Run coverage with html",
+      "type": "shell",
+      "command": "venv/Scripts/coverage",
+      "args": ["html"],
+      "presentation": {
+        "reveal": "always"
+      }
+    }
+  ]
+}
