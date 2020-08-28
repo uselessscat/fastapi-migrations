@@ -8,6 +8,7 @@ from setuptools import setup
 version = open('__version__').read()
 long_description = open('README.md', 'r').read()
 requirements = open('requirements.txt', 'r').read().splitlines()
+dev_requirements = open('requirements.dev.txt', 'r').read().splitlines()
 
 setup(
     name='fastapi-migrations',
@@ -20,7 +21,7 @@ setup(
     license='MIT',
     author='Ariel Carvajal',
     author_email='arie.cbpro@gmail.com',
-    description=('#TODO'),
+    description=('A small integration between Fastapi and Alembic.'),
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=['fastapi_migrations'],
@@ -28,10 +29,7 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=requirements,
-    tests_require=[
-    ],
-    entry_points={
-    },
+    tests_require=dev_requirements,
     test_suite='tests',
     classifiers=[
         'Environment :: Web Environment',

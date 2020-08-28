@@ -1,0 +1,5 @@
+# cli
+typer
+
+# migrations
+alembic
