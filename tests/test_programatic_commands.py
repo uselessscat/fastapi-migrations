@@ -2,17 +2,21 @@ import shutil
 from os import listdir
 from os.path import isdir, isfile, join
 
-from tests.fixtures import dirs
+from tests.fixtures import dirs, init_migrate, TestDirectories
 
 from fastapi_migrations import Migrations, MigrationsConfig
 
 
-def test_migrations_dirs_not_exist(dirs):
+def exclude_non_revision(dir_list):
+    return set(dir_list) - set(['__pycache__'])
+
+
+def test_migrations_dirs_not_exist(dirs: TestDirectories) -> None:
     assert not isdir(dirs.DEFAULT)
     assert not isdir(dirs.TEST)
 
 
-def test_init_creates_folders(dirs):
+def test_init_creates_folders(dirs: TestDirectories) -> None:
     m = Migrations()
 
     assert not isdir(dirs.DEFAULT)
@@ -23,15 +27,15 @@ def test_init_creates_folders(dirs):
     shutil.rmtree(dirs.DEFAULT)
 
 
-def test_init_creates_files(dirs):
-    m = Migrations()
+def test_init_fixture(dirs: TestDirectories, init_migrate) -> None:
+    init_migrate()
 
-    assert not isdir(dirs.DEFAULT)
-
-    m.init()
     assert isdir(dirs.DEFAULT)
 
-    # created files
+
+def test_init_creates_files(dirs: TestDirectories, init_migrate) -> None:
+    init_migrate(migrations_directory=dirs.DEFAULT)
+
     assert isfile(join(dirs.DEFAULT, 'alembic.ini'))
     assert isfile(join(dirs.DEFAULT, 'env.py'))
     assert isfile(join(dirs.DEFAULT, 'README'))
@@ -39,19 +43,14 @@ def test_init_creates_files(dirs):
     assert isdir(join(dirs.DEFAULT, 'versions'))
     assert len(listdir(join(dirs.DEFAULT, 'versions'))) == 0
 
-    shutil.rmtree(dirs.DEFAULT)
 
+def test_init_creates_files_specified_folder(
+    dirs: TestDirectories,
+    init_migrate
+) -> None:
+    init_migrate(migrations_directory=dirs.TEST)
 
-def test_init_creates_files_specified_folder(dirs):
-    c = MigrationsConfig(directory=dirs.TEST)
-    m = Migrations(c)
-
-    assert not isdir(dirs.TEST)
-
-    m.init()
     assert isdir(dirs.TEST)
-
-    # created files
     assert isfile(join(dirs.TEST, 'alembic.ini'))
     assert isfile(join(dirs.TEST, 'env.py'))
     assert isfile(join(dirs.TEST, 'README'))
@@ -59,4 +58,49 @@ def test_init_creates_files_specified_folder(dirs):
     assert isdir(join(dirs.TEST, 'versions'))
     assert len(listdir(join(dirs.TEST, 'versions'))) == 0
 
-    shutil.rmtree(dirs.TEST)
+
+def test_init_creates_different_ini_file(
+    dirs: TestDirectories,
+    init_migrate
+) -> None:
+    init_migrate(migrations_directory=dirs.TEST,
+                 migrations_ini_file='different.ini')
+
+    assert isdir(dirs.TEST)
+    assert isfile(join(dirs.TEST, 'different.ini'))
+
+
+def test_revision_create(
+    dirs: TestDirectories,
+    init_migrate: init_migrate
+) -> None:
+    m = init_migrate(migrations_directory=dirs.DEFAULT)
+
+    assert len(listdir(join(dirs.DEFAULT, 'versions'))) == 0
+
+    script = m.revision('revision_one')
+
+    dir_list = listdir(join(m.configuration.migrations_directory, 'versions'))
+    assert len(exclude_non_revision(dir_list)) == 1
+
+    assert script.doc == 'revision_one'
+    assert isfile(script.path)
+    assert isfile(join(dirs.DEFAULT, 'versions', script.revision + '.py'))
+
+    script2 = m.revision('revision_two')
+
+    dir_list = listdir(join(m.configuration.migrations_directory, 'versions'))
+    assert len(exclude_non_revision(dir_list)) == 2
+
+    assert script2.doc == 'revision_two'
+    assert isfile(script2.path)
+    assert isfile(join(dirs.DEFAULT, 'versions', script2.revision + '.py'))
+
+
+def test_revision_create_auto(
+    dirs: TestDirectories,
+    init_migrate: init_migrate
+) -> None:
+    m = init_migrate(migrations_directory=dirs.DEFAULT)
+
+    m.revision('revision_one', autogenerate=True)

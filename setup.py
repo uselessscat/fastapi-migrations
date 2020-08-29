@@ -16,7 +16,7 @@ setup(
     url='https://github.com/uselessscat/fastapi-migrations',
     project_urls={
         'Code': 'https://github.com/uselessscat/fastapi-migrations',
-        'Issue tracker': 'https://github.com/uselessscat/fastapi-migrations/issues',
+        'Issues': 'https://github.com/uselessscat/fastapi-migrations/issues',
     },
     license='MIT',
     author='Ariel Carvajal',

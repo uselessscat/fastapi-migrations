@@ -7,7 +7,7 @@ from fastapi_migrations import Migrations, MigrationsConfig
 class MigrationsCli(Typer):
     def __init__(
         self,
-        config: MigrationsConfig = None,
+        config: t.Optional[MigrationsConfig] = None,
         *,
         name: t.Optional[str] = 'db',
         help: t.Optional[str] = 'Database tools',

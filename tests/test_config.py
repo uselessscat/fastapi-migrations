@@ -7,34 +7,47 @@ from fastapi_migrations.cli import MigrationsCli
 from fastapi_migrations import Migrations, MigrationsConfig
 
 
-def test_create_migrations(dirs):
+def test_create_migrations(dirs) -> None:
     m = Migrations()
 
     assert m
     assert m.configuration
-    assert m.configuration.directory == dirs.DEFAULT
+    assert m.configuration.migrations_directory == dirs.DEFAULT
 
 
-def test_create_migrations_cli(dirs):
+def test_create_migrations_cli(dirs) -> None:
     m = MigrationsCli()
 
     assert m
     assert m.migrations
     assert m.migrations.configuration
-    assert m.migrations.configuration.directory == dirs.DEFAULT
+    assert m.migrations.configuration.migrations_directory == dirs.DEFAULT
 
 
-def test_create_migrations_config(dirs):
-    c = MigrationsConfig(directory=dirs.TEST)
+def test_create_migrations_config(dirs) -> None:
+    c = MigrationsConfig(migrations_directory=dirs.TEST)
     m = Migrations(c)
 
     assert m.configuration
-    assert m.configuration.directory == dirs.TEST
+    assert m.configuration.migrations_directory == dirs.TEST
 
 
-def test_create_migrations_cli_config(dirs):
-    c = MigrationsConfig(directory=dirs.TEST)
+def test_create_migrations_cli_config(dirs) -> None:
+    c = MigrationsConfig(migrations_directory=dirs.TEST)
     m = MigrationsCli(c)
 
     assert m.migrations.configuration
-    assert m.migrations.configuration.directory == dirs.TEST
+    assert m.migrations.configuration.migrations_directory == dirs.TEST
+
+
+def test_get_ini_config(dirs) -> None:
+    from alembic.config import Config as aconf
+
+    m = Migrations()
+    m.init()
+
+    c = aconf(join(dirs.DEFAULT, 'alembic.ini'))
+
+    print("ASDASDAS", c.file_config.sections)
+
+    shutil.rmtree(dirs.DEFAULT)

@@ -1,6 +1,6 @@
 # Fastapi Migrations
 
-**Notice: Actually in development.**
+**Notice: This can not be ready-for-production library. Breaking changes may be introduced.**
 
 This library provides a small wrapper for alembic.
 

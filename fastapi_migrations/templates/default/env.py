@@ -29,7 +29,6 @@ with db():
         'sqlalchemy.url',
         str(db.session.get_bind().engine.url).replace('%', '%%'))
 
-
     target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
@@ -83,7 +82,7 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
-            #**current_app.extensions['migrate'].configure_args
+            # **current_app.extensions['migrate'].configure_args
         )
 
         with context.begin_transaction():

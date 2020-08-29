@@ -9,7 +9,7 @@
       "label": "Run tests",
       "type": "shell",
       "command": "venv/Scripts/pytest",
-      "args": ["--ignore=venv/*", "-v", "tests/*"],
+      "args": ["--ignore=venv/*", "-v", "-s", "tests/*"],
       "presentation": {
         "reveal": "always"
       }
@@ -42,6 +42,26 @@
         "reveal": "always"
       },
       "dependsOn": ["Run coverage"]
+    },
+    {
+      "group": "test",
+      "label": "Run flake8",
+      "type": "shell",
+      "command": "venv/Scripts/flake8",
+      "args": ["--exclude", "venv,.eggs"],
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "group": "test",
+      "label": "Run mypy",
+      "type": "shell",
+      "command": "venv/Scripts/mypy",
+      "args": ["--strict", "."],
+      "presentation": {
+        "reveal": "always"
+      }
     }
   ]
 }

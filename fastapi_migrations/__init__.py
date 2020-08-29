@@ -2,9 +2,11 @@ import os
 import sys
 import logging
 import argparse
+import typing as t
 from functools import wraps
+from os.path import join, abspath, dirname
 
-from pydantic import BaseSettings, PyObject, Extra
+from pydantic import BaseSettings, Extra
 
 from alembic import command
 from alembic import __version__ as __alembic_version__
@@ -12,138 +14,159 @@ from alembic.util import CommandError
 from alembic.config import Config as AlembicConfig
 
 
-def catch_errors(f):
+alembic_version = tuple([int(v) for v in __alembic_version__.split('.')[0:3]])
+
+
+def catch_errors(f):  # type: ignore
     @wraps(f)
     def wrapped(*args, **kwargs):
         try:
             f(*args, **kwargs)
         except (CommandError, RuntimeError) as exc:
-            log.error('Error: ' + str(exc))
+            logging.error('Error: ' + str(exc))
 
     return wrapped
 
 
-# TODO: DELETE THIS
-class Config(AlembicConfig):
-    def get_template_directory(self):
-        package_dir = os.path.abspath(os.path.dirname(__file__))
-        return os.path.join(package_dir, 'templates')
-
-
 class MigrationsConfig(BaseSettings):
-    directory: str = 'migrations'
+    migrations_directory: str = 'migrations'
+    migrations_ini_file: str = 'alembic.ini'
+
+    migrations_default_template: str = 'default'
+    migrations_multidb_template: str = 'multidb'
+    migrations_template_directory: str = join(
+        abspath(dirname(__file__)), 'templates'
+    )
+
+    @classmethod
+    def from_alembic_config(cls) -> 'MigrationsConfig':
+        # TODO: implement
+        return cls()
+
+    def to_alembic_config(self) -> AlembicConfig:
+        def get_template_directory() -> str:
+            return self.migrations_template_directory
+
+        alembic = AlembicConfig(
+            join(self.migrations_directory, self.migrations_ini_file)
+        )
+
+        alembic.get_template_directory = get_template_directory
+        alembic.set_main_option('script_location', self.migrations_directory)
+        # alembic.print_stdout(sys.stdout)
+        # alembic.config_file_name = join(self.directory, 'alembic.ini')
+
+        return alembic
 
     class Config:
         extra = Extra.allow
 
 
 class Migrations():
-    def __init__(self, config: MigrationsConfig = None):
+    def __init__(self, config: t.Optional[MigrationsConfig] = None):
         self.configuration = config or MigrationsConfig()
 
-    @catch_errors
-    def init(self, directory=None, multidb=False):
-        if directory is None:
-            directory = self.configuration.directory
-
-        config = Config()
-        config.set_main_option('script_location', directory)
-
-        config.config_file_name = os.path.join(directory, 'alembic.ini')
+    def init(self, multidb: bool = False) -> None:
+        directory: str = self.configuration.migrations_directory
 
         # config = current_app.extensions['migrate'].\
         #    migrate.call_configure_callbacks(config)
-        if multidb:
-            command.init(config, directory, 'multidb')
-        else:
-            command.init(config, directory, 'default')
+        config: AlembicConfig = self.configuration.to_alembic_config()
 
-    @catch_errors
-    def revision(self, directory=None, message=None, autogenerate=False, sql=False,
-                 head='head', splice=False, branch_label=None, version_path=None,
-                 rev_id=None):
-        config = self.__get_config(directory)
-        command.revision(config, message, autogenerate=autogenerate, sql=sql,
-                         head=head, splice=splice, branch_label=branch_label,
-                         version_path=version_path, rev_id=rev_id)
+        template_name: str = self.configuration.migrations_multidb_template \
+            if multidb \
+            else self.configuration.migrations_default_template
 
-    @catch_errors
-    def migrate(self, directory=None, message=None, sql=False, head='head', splice=False,
-                branch_label=None, version_path=None, rev_id=None, x_arg=None):
-        config = self.__get_config(
-            directory, opts=['autogenerate'], x_arg=x_arg)
+        return command.init(config, directory, template_name)
 
-        command.revision(config, message, autogenerate=True, sql=sql,
-                         head=head, splice=splice, branch_label=branch_label,
-                         version_path=version_path, rev_id=rev_id)
+    def revision(
+            self,
+            message: t.Optional[str] = None,
+            autogenerate: bool = False,
+            sql: bool = False,
+            head: str = 'head',
+            splice: bool = False,
+            branch_label: bool = None,
+            version_path=None,
+            rev_id=None
+    ) -> None:
+        config = self.configuration.to_alembic_config()
 
-    @catch_errors
-    def upgrade(self, directory=None, revision='head', sql=False, tag=None, x_arg=None):
-        config = self.__get_config(directory, x_arg=x_arg)
+        return command.revision(
+            config,
+            message,
+            autogenerate=autogenerate,
+            sql=sql,
+            head=head,
+            splice=splice,
+            branch_label=branch_label,
+            version_path=version_path,
+            rev_id=rev_id
+        )
 
-        command.upgrade(config, revision, sql=sql, tag=tag)
+    def migrate(self, message=None, sql=False, head='head', splice=False,
+                branch_label=None, version_path=None, rev_id=None, x_arg=None) -> None:
+        config = self.__get_config(opts=['autogenerate'], x_arg=x_arg)
 
-    @catch_errors
-    def downgrade(self, directory=None, revision='-1', sql=False, tag=None, x_arg=None):
-        config = self.__get_config(directory, x_arg=x_arg)
+        return command.revision(config, message, autogenerate=True, sql=sql,
+                                head=head, splice=splice, branch_label=branch_label,
+                                version_path=version_path, rev_id=rev_id)
+
+    def upgrade(self, revision='head', sql=False, tag=None, x_arg=None) -> None:
+        config = self.__get_config(x_arg=x_arg)
+
+        return command.upgrade(config, revision, sql=sql, tag=tag)
+
+    def downgrade(self, revision='-1', sql=False, tag=None, x_arg=None) -> None:
+        config = self.__get_config(x_arg=x_arg)
         if sql and revision == '-1':
             revision = 'head:-1'
-        command.downgrade(config, revision, sql=sql, tag=tag)
+        return command.downgrade(config, revision, sql=sql, tag=tag)
 
-    @catch_errors
-    def edit(self, directory=None, revision='current'):
+    def edit(self, revision='current') -> None:
         if alembic_version >= (0, 8, 0):
-            config = self.__get_config(directory)
-            command.edit(config, revision)
+            config = self.__get_config()
+            return command.edit(config, revision)
         else:
             raise RuntimeError('Alembic 0.8.0 or greater is required')
 
-    @catch_errors
-    def merge(self, directory=None, revisions='', message=None, branch_label=None,
-              rev_id=None):
-        config = self.__get_config(directory)
-        command.merge(config, revisions, message=message,
-                      branch_label=branch_label, rev_id=rev_id)
+    def merge(self, revisions='', message=None, branch_label=None,
+              rev_id=None) -> None:
+        config = self.__get_config()
+        return command.merge(config, revisions, message=message,
+                             branch_label=branch_label, rev_id=rev_id)
 
-    @catch_errors
-    def show(self, directory=None, revision='head'):
-        config = self.__get_config(directory)
-        command.show(config, revision)
+    def show(self, revision: str = 'head') -> None:
+        config = self.configuration.to_alembic_config()
+        return command.show(config, revision)
 
-    @catch_errors
-    def history(self, directory=None, rev_range=None, verbose=False, indicate_current=False):
-        config = self.__get_config(directory)
+    def history(self, rev_range=None, verbose=False, indicate_current=False) -> None:
+        config = self.__get_config()
         if alembic_version >= (0, 9, 9):
-            command.history(config, rev_range, verbose=verbose,
-                            indicate_current=indicate_current)
+            return command.history(config, rev_range, verbose=verbose,
+                                   indicate_current=indicate_current)
         else:
-            command.history(config, rev_range, verbose=verbose)
+            return command.history(config, rev_range, verbose=verbose)
 
-    @catch_errors
-    def heads(self, directory=None, verbose=False, resolve_dependencies=False):
-        config = self.__get_config(directory)
-        command.heads(config, verbose=verbose,
-                      resolve_dependencies=resolve_dependencies)
+    def heads(self, verbose=False, resolve_dependencies=False) -> None:
+        config = self.__get_config()
+        return command.heads(config, verbose=verbose,
+                             resolve_dependencies=resolve_dependencies)
 
-    @catch_errors
-    def branches(self, directory=None, verbose=False):
-        config = self.__get_config(directory)
-        command.branches(config, verbose=verbose)
+    def branches(self, verbose=False) -> None:
+        config = self.__get_config()
+        return command.branches(config, verbose=verbose)
 
-    @catch_errors
-    def current(self, directory=None, verbose=False, head_only=False):
-        config = self.__get_config(directory)
-        command.current(config, verbose=verbose, head_only=head_only)
+    def current(self, verbose=False, head_only=False) -> None:
+        config = self.__get_config()
+        return command.current(config, verbose=verbose, head_only=head_only)
 
-    @catch_errors
-    def stamp(self, directory=None, revision='head', sql=False, tag=None):
-        config = self.__get_config(directory)
-        command.stamp(config, revision, sql=sql, tag=tag)
+    def stamp(self, revision='head', sql=False, tag=None) -> None:
+        config = self.__get_config()
+        return command.stamp(config, revision, sql=sql, tag=tag)
 
-    def __get_config(self, directory=None, x_arg=None, opts=None):
-        if directory is None:
-            directory = self.configuration.directory
-        directory = str(directory)
+    def __get_config(self, x_arg=None, opts=None):
+        directory = self.configuration.directory
 
         config = Config(os.path.join(directory, 'alembic.ini'))
         config.set_main_option('script_location', directory)
@@ -164,12 +187,8 @@ class Migrations():
                     config.cmd_opts.x.append(x_arg)
             else:
                 setattr(config.cmd_opts, 'x', None)
-        # return self.call_configure_callbacks(config)
+
         return config
-
-
-alembic_version = tuple([int(v) for v in __alembic_version__.split('.')[0:3]])
-log = logging.getLogger()
 
 
 class _MigrateConfig(object):
