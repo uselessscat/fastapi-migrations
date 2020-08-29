@@ -1,15 +1,15 @@
-import sys
 import os
+import sys
 import logging
-from functools import wraps
 import argparse
+from functools import wraps
 
-from alembic.util import CommandError
+from pydantic import BaseSettings, PyObject, Extra
+
 from alembic import command
-from alembic.config import Config as AlembicConfig
 from alembic import __version__ as __alembic_version__
-
-from pydantic import BaseSettings
+from alembic.util import CommandError
+from alembic.config import Config as AlembicConfig
 
 
 def catch_errors(f):
@@ -31,12 +31,15 @@ class Config(AlembicConfig):
 
 
 class MigrationsConfig(BaseSettings):
-    directory = 'migrations'
+    directory: str = 'migrations'
+
+    class Config:
+        extra = Extra.allow
 
 
 class Migrations():
-    def __init__(self, config: MigrationsConfig):
-        self.configuration = config
+    def __init__(self, config: MigrationsConfig = None):
+        self.configuration = config or MigrationsConfig()
 
     @catch_errors
     def init(self, directory=None, multidb=False):

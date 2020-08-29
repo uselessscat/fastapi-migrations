@@ -8,6 +8,8 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+migrations/
+migrations_test/
 
 # Distribution / packaging
 .Python

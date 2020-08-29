@@ -9,7 +9,7 @@
       "label": "Run tests",
       "type": "shell",
       "command": "venv/Scripts/pytest",
-      "args": ["--ignore=venv/*", "tests/*"],
+      "args": ["--ignore=venv/*", "-v", "tests/*"],
       "presentation": {
         "reveal": "always"
       }
@@ -25,7 +25,8 @@
         "-m",
         "pytest",
         "--ignore=venv/*",
-        "tests/*"
+        "-v",
+        "tests/"
       ],
       "presentation": {
         "reveal": "always"
@@ -39,7 +40,8 @@
       "args": ["html"],
       "presentation": {
         "reveal": "always"
-      }
+      },
+      "dependsOn": ["Run coverage"]
     }
   ]
 }
