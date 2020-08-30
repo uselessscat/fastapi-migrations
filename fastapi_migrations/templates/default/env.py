@@ -1,40 +1,58 @@
 from __future__ import with_statement
 
-import logging
-from logging.config import fileConfig
-
-from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
-from fastapi_sqlalchemy import db
-from app.db.base import Base
+from sqlalchemy import engine_from_config
 
 from alembic import context
 
+from logging.config import fileConfig
+import logging
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
+# pylint: disable=no-member
 config = context.config
+
+# other values from the config, defined by the needs of env.py,
+# can be acquired:
+# my_important_option = config.get_main_option("my_important_option")
+# ... etc.
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-with db():
+try:
+    from fastapi_sqlalchemy import db
+
+    with db():
+        config.set_main_option(
+            'sqlalchemy.url',
+            str(db.session.get_bind().engine.url))
+except:
+    # TODO: Add url to MigrationsConfig
     config.set_main_option(
         'sqlalchemy.url',
-        str(db.session.get_bind().engine.url).replace('%', '%%'))
+        'sqlite:///?check_same_thread=false'
+    )
 
-    target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+def get_metadata():
+    # add your model's MetaData object here
+    # for 'autogenerate' support
+    # from myapp import mymodel
+    # target_metadata = mymodel.Base.metadata
+    try:
+        from app.db.base import Base
+
+        return Base.metadata
+    except:
+        # TODO: pass metadata though config
+        return None
+
+
+target_metadata = get_metadata()
 
 
 def run_migrations_offline():
@@ -82,7 +100,7 @@ def run_migrations_online():
             connection=connection,
             target_metadata=target_metadata,
             process_revision_directives=process_revision_directives,
-            # **current_app.extensions['migrate'].configure_args
+            # **configure_args
         )
 
         with context.begin_transaction():

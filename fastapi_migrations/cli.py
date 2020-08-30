@@ -21,7 +21,7 @@ class MigrationsCli(Typer):
     def __register_commands(self) -> None:
         self.command('init')(self.migrations.init)
         self.command('revision')(self.migrations.revision)
-        self.command('migrate')(self.migrations.migrate)
+        self.command('autogenerate')(self.migrations.autogenerate)
         self.command('upgrade')(self.migrations.upgrade)
         self.command('downgrade')(self.migrations.downgrade)
         self.command('edit')(self.migrations.edit)
