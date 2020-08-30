@@ -28,14 +28,19 @@ def catch_errors(f):  # type: ignore
 
 
 class MigrationsConfig(BaseSettings):
-    migrations_directory: str = 'migrations'
-    migrations_ini_file: str = 'alembic.ini'
+    sqlalchemy_url: t.Optional[str]
 
-    migrations_default_template: str = 'default'
-    migrations_multidb_template: str = 'multidb'
-    migrations_template_directory: str = join(
+    script_location: str = 'migrations'
+    config_file_name: str = 'alembic.ini'
+
+    default_template_dir: str = 'default'
+    multidb_template_dir: str = 'multidb'
+    template_directory: str = join(
         abspath(dirname(__file__)), 'templates'
     )
+
+    file_template: str = '%%(rev)s'
+    truncate_slug_length: str = '40'
 
     @classmethod
     def from_alembic_config(cls) -> 'MigrationsConfig':
@@ -44,16 +49,25 @@ class MigrationsConfig(BaseSettings):
 
     def to_alembic_config(self) -> AlembicConfig:
         def get_template_directory() -> str:
-            return self.migrations_template_directory
+            return self.template_directory
 
         alembic = AlembicConfig(
-            join(self.migrations_directory, self.migrations_ini_file)
+            join(self.script_location, self.config_file_name)
         )
 
+        # set the template directory getter
         alembic.get_template_directory = get_template_directory
-        alembic.set_main_option('script_location', self.migrations_directory)
-        # alembic.print_stdout(sys.stdout)
-        # alembic.config_file_name = join(self.directory, 'alembic.ini')
+
+        # default alembic confs
+        if self.sqlalchemy_url:
+            alembic.set_main_option('sqlalchemy.url', self.sqlalchemy_url)
+
+        alembic.set_main_option('script_location', self.script_location)
+        alembic.set_main_option('file_template', self.file_template)
+        alembic.set_main_option(
+            'truncate_slug_length',
+            self.truncate_slug_length
+        )
 
         return alembic
 
@@ -72,15 +86,14 @@ class Migrations():
         self,
         multidb: bool = False
     ) -> t.Any:
-        directory: str = self.configuration.migrations_directory
-
         config: AlembicConfig = self.configuration.to_alembic_config()
 
-        template_name: str = self.configuration.migrations_multidb_template \
-            if multidb \
-            else self.configuration.migrations_default_template
-
-        return command.init(config, directory, template_name)
+        return command.init(
+            config,
+            directory=self.configuration.script_location,
+            template='multidb' if multidb else 'default',
+            package=False
+        )
 
     def revision(
             self,

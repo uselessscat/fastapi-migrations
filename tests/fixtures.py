@@ -27,7 +27,7 @@ def init_migrate():
         mig_list.append(m)
 
         # check directory doesnt exists
-        assert not isdir(m.configuration.migrations_directory)
+        assert not isdir(m.configuration.script_location)
 
         m.init()
 
@@ -36,7 +36,7 @@ def init_migrate():
     yield instance_migrations
 
     for mig in mig_list:
-        shutil.rmtree(mig.configuration.migrations_directory)
+        shutil.rmtree(mig.configuration.script_location)
 
         # check directory was erased
-        assert not isdir(mig.configuration.migrations_directory)
+        assert not isdir(mig.configuration.script_location)

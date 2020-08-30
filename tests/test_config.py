@@ -12,7 +12,7 @@ def test_create_migrations(dirs: TestDirectories) -> None:
 
     assert m
     assert m.configuration
-    assert m.configuration.migrations_directory == dirs.DEFAULT
+    assert m.configuration.script_location == dirs.DEFAULT
 
 
 def test_create_migrations_cli(dirs: TestDirectories) -> None:
@@ -21,23 +21,23 @@ def test_create_migrations_cli(dirs: TestDirectories) -> None:
     assert m
     assert m.migrations
     assert m.migrations.configuration
-    assert m.migrations.configuration.migrations_directory == dirs.DEFAULT
+    assert m.migrations.configuration.script_location == dirs.DEFAULT
 
 
 def test_create_migrations_config(dirs: TestDirectories) -> None:
-    c = MigrationsConfig(migrations_directory=dirs.TEST)
+    c = MigrationsConfig(script_location=dirs.TEST)
     m = Migrations(c)
 
     assert m.configuration
-    assert m.configuration.migrations_directory == dirs.TEST
+    assert m.configuration.script_location == dirs.TEST
 
 
 def test_create_migrations_cli_config(dirs: TestDirectories) -> None:
-    c = MigrationsConfig(migrations_directory=dirs.TEST)
+    c = MigrationsConfig(script_location=dirs.TEST)
     m = MigrationsCli(c)
 
     assert m.migrations.configuration
-    assert m.migrations.configuration.migrations_directory == dirs.TEST
+    assert m.migrations.configuration.script_location == dirs.TEST
 
 
 def test_get_ini_config(dirs: TestDirectories) -> None:
