@@ -37,7 +37,7 @@
       "label": "Run coverage with html",
       "type": "shell",
       "command": "venv/Scripts/coverage",
-      "args": ["html"],
+      "args": ["html", "-i"],
       "presentation": {
         "reveal": "always"
       },
