@@ -1,5 +1,14 @@
 # Fastapi Migrations
 
+![PyPI](https://img.shields.io/pypi/v/fastapi-migrations)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/fastapi-migrations)
+![PyPI - License](https://img.shields.io/pypi/l/fastapi-migrations)
+
+![GitHub last commit](https://img.shields.io/github/last-commit/uselessscat/fastapi-migrations)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/uselessscat/fastapi-migrations)
+![GitHub issues](https://img.shields.io/github/issues/uselessscat/fastapi-migrations)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/uselessscat/fastapi-migrations)
+
 This library provides a small wrapper for alembic.
 
 ### Notice
