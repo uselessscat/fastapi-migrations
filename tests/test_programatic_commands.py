@@ -1,13 +1,15 @@
+import typing as t
+
 import shutil
 from os import listdir
 from os.path import isdir, isfile, join
 
 from tests.fixtures import dirs, init_migrate, TestDirectories
 
-from fastapi_migrations import Migrations, MigrationsConfig
+from fastapi_migrations import Migrations
 
 
-def exclude_non_revision(dir_list: list) -> set:
+def exclude_non_revision(dir_list: t.List[str]) -> t.Set[str]:
     return set(dir_list) - set(['__pycache__'])
 
 
@@ -101,7 +103,7 @@ def test_revision_create_auto(
     dirs: TestDirectories,
     init_migrate: init_migrate
 ) -> None:
-    m = init_migrate(script_location=dirs.DEFAULT)
+    init_migrate(script_location=dirs.DEFAULT)
 
     # TODO: Update this
     # m.revision('revision_one', autogenerate=True)

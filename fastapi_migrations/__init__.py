@@ -1,6 +1,4 @@
-import os
 import logging
-import argparse
 import typing as t
 from functools import wraps
 from os.path import join, abspath, dirname
@@ -14,6 +12,8 @@ from alembic.config import Config as AlembicConfig
 
 
 alembic_version = tuple([int(v) for v in __alembic_version__.split('.')[0:3]])
+
+# TODO: FIX
 
 
 def catch_errors(f):  # type: ignore
@@ -102,9 +102,9 @@ class Migrations():
             sql: bool = False,
             head: str = 'head',
             splice: bool = False,
-            branch_label: bool = None,
-            version_path=None,
-            rev_id=None
+            branch_label: t.Optional[str] = None,
+            version_path: t.Optional[str] = None,
+            rev_id: t.Optional[str] = None
     ) -> t.Any:
         config = self.configuration.to_alembic_config()
 
@@ -128,10 +128,9 @@ class Migrations():
         splice: bool = False,
         branch_label: t.Optional[str] = None,
         version_path: t.Optional[str] = None,
-        rev_id: t.Optional[str] = None,
-        x_arg=None
+        rev_id: t.Optional[str] = None
     ) -> t.Any:
-        config = self.__get_config(opts=['autogenerate'], x_arg=x_arg)
+        config = self.configuration.to_alembic_config()
 
         return command.revision(
             config,
@@ -149,10 +148,9 @@ class Migrations():
         self,
         revision: str = 'head',
         sql: bool = False,
-        tag: t.Optional[str] = None,
-        x_arg=None
+        tag: t.Optional[str] = None
     ) -> t.Any:
-        config = self.__get_config(x_arg=x_arg)
+        config = self.configuration.to_alembic_config()
 
         return command.upgrade(
             config,
@@ -165,10 +163,9 @@ class Migrations():
         self,
         revision: str = '-1',
         sql: bool = False,
-        tag: t.Optional[str] = None,
-        x_arg=None
+        tag: t.Optional[str] = None
     ) -> t.Any:
-        config = self.__get_config(x_arg=x_arg)
+        config = self.configuration.to_alembic_config()
 
         if sql and revision == '-1':
             revision = 'head:-1'
@@ -185,7 +182,7 @@ class Migrations():
         revision: str = 'current'
     ) -> t.Any:
         if alembic_version >= (0, 8, 0):
-            config = self.__get_config()
+            config = self.configuration.to_alembic_config()
 
             return command.edit(config, revision)
         else:
@@ -198,7 +195,7 @@ class Migrations():
         branch_label: t.Optional[str] = None,
         rev_id: t.Optional[str] = None
     ) -> t.Any:
-        config = self.__get_config()
+        config = self.configuration.to_alembic_config()
 
         return command.merge(
             config,
@@ -222,7 +219,7 @@ class Migrations():
         verbose: bool = False,
         indicate_current: bool = False
     ) -> t.Any:
-        config = self.__get_config()
+        config = self.configuration.to_alembic_config()
 
         if alembic_version >= (0, 9, 9):
             return command.history(
@@ -243,7 +240,7 @@ class Migrations():
         verbose: bool = False,
         resolve_dependencies: bool = False
     ) -> t.Any:
-        config = self.__get_config()
+        config = self.configuration.to_alembic_config()
 
         return command.heads(
             config,
@@ -255,7 +252,7 @@ class Migrations():
         self,
         verbose: bool = False
     ) -> t.Any:
-        config = self.__get_config()
+        config = self.configuration.to_alembic_config()
 
         return command.branches(config, verbose=verbose)
 
@@ -264,7 +261,7 @@ class Migrations():
         verbose: bool = False,
         head_only: bool = False
     ) -> t.Any:
-        config = self.__get_config()
+        config = self.configuration.to_alembic_config()
 
         return command.current(
             config,
@@ -278,7 +275,7 @@ class Migrations():
         sql: bool = False,
         tag: t.Optional[str] = None
     ) -> t.Any:
-        config = self.__get_config()
+        config = self.configuration.to_alembic_config()
 
         return command.stamp(
             config,
@@ -286,28 +283,3 @@ class Migrations():
             sql=sql,
             tag=tag
         )
-
-    def __get_config(self, x_arg=None, opts=None):
-        directory = self.configuration.directory
-
-        config = Config(os.path.join(directory, 'alembic.ini'))
-        config.set_main_option('script_location', directory)
-
-        if config.cmd_opts is None:
-            config.cmd_opts = argparse.Namespace()
-
-        for opt in opts or []:
-            setattr(config.cmd_opts, opt, True)
-
-        if not hasattr(config.cmd_opts, 'x'):
-            if x_arg is not None:
-                setattr(config.cmd_opts, 'x', [])
-                if isinstance(x_arg, list) or isinstance(x_arg, tuple):
-                    for x in x_arg:
-                        config.cmd_opts.x.append(x)
-                else:
-                    config.cmd_opts.x.append(x_arg)
-            else:
-                setattr(config.cmd_opts, 'x', None)
-
-        return config
