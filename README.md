@@ -117,6 +117,6 @@ You can add this lines where you wish in your proyect. Here we ar adding it to a
 
     py app/main.py action show
 
-# Licence
+# License
 
-This software is distributed under [MIT licence](LICENCE).
+This software is distributed under [MIT license](LICENSE).
