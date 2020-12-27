@@ -31,7 +31,7 @@ try:
             'sqlalchemy.url',
             str(db.session.get_bind().engine.url)
         )
-except:
+except Exception:
     # TODO: Add url to MigrationsConfig
     config.set_main_option(
         'sqlalchemy.url',
@@ -48,7 +48,7 @@ def get_metadata():
         from app.db.base import Base
 
         return Base.metadata
-    except:
+    except Exception:
         # TODO: pass metadata though config
         return None
 

@@ -1,6 +1,6 @@
 {
   "python.venvPath": "${workspaceFolder}",
-  "python.pythonPath": "${workspaceFolder}/venv",
+  "python.pythonPath": "${workspaceFolder}/.venv/Scripts/python",
   "[python]": {
     "editor.rulers": [79, 120]
   }

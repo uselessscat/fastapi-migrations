@@ -1,4 +1,4 @@
-import typing as t
+from typing import Optional, Any
 
 from typer import Typer
 from fastapi_migrations import Migrations, MigrationsConfig
@@ -7,11 +7,11 @@ from fastapi_migrations import Migrations, MigrationsConfig
 class MigrationsCli(Typer):
     def __init__(
         self,
-        config: t.Optional[MigrationsConfig] = None,
+        config: Optional[MigrationsConfig] = None,
         *,
-        name: t.Optional[str] = 'db',
-        help: t.Optional[str] = 'Database tools',
-        **kwargs: t.Any
+        name: Optional[str] = 'db',
+        help: Optional[str] = 'Database tools',
+        **kwargs: Any
     ):
         super().__init__(name=name, help=help, **kwargs)
 

@@ -21,4 +21,4 @@ dist/
 *.dist-info/
 
 # virtual environmnents
-venv/
+.venv/

@@ -1,4 +1,4 @@
-import typing as t
+from typing import Callable, List, Set
 
 import shutil
 from os import listdir
@@ -9,7 +9,7 @@ from tests.fixtures import dirs, init_migrate, TestDirectories
 from fastapi_migrations import Migrations
 
 
-def exclude_non_revision(dir_list: t.List[str]) -> t.Set[str]:
+def exclude_non_revision(dir_list: List[str]) -> Set[str]:
     return set(dir_list) - set(['__pycache__'])
 
 
@@ -63,10 +63,12 @@ def test_init_creates_files_specified_folder(
 
 def test_init_creates_different_ini_file(
     dirs: TestDirectories,
-    init_migrate: init_migrate
+    init_migrate: Callable
 ) -> None:
-    init_migrate(script_location=dirs.TEST,
-                 config_file_name='different.ini')
+    init_migrate(
+        script_location=dirs.TEST,
+        config_file_name='different.ini'
+    )
 
     assert isdir(dirs.TEST)
     assert isfile(join(dirs.TEST, 'different.ini'))
@@ -74,7 +76,7 @@ def test_init_creates_different_ini_file(
 
 def test_revision_create(
     dirs: TestDirectories,
-    init_migrate: init_migrate
+    init_migrate: Callable
 ) -> None:
     m = init_migrate(script_location=dirs.DEFAULT)
 
@@ -101,7 +103,7 @@ def test_revision_create(
 
 def test_revision_create_auto(
     dirs: TestDirectories,
-    init_migrate: init_migrate
+    init_migrate: Callable
 ) -> None:
     init_migrate(script_location=dirs.DEFAULT)
 
