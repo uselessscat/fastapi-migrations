@@ -1,4 +1,4 @@
-from typing import Callable, List, Set
+from typing import Callable, List, Set, Any
 
 import shutil
 from os import listdir
@@ -29,13 +29,19 @@ def test_init_creates_folders(dirs: TestDirectories) -> None:
     shutil.rmtree(dirs.DEFAULT)
 
 
-def test_init_fixture(dirs: TestDirectories, init_migrate) -> None:
+def test_init_fixture(
+    dirs: TestDirectories,
+    init_migrate
+) -> None:
     init_migrate()
 
     assert isdir(dirs.DEFAULT)
 
 
-def test_init_creates_files(dirs: TestDirectories, init_migrate) -> None:
+def test_init_creates_files(
+    dirs: TestDirectories,
+    init_migrate
+) -> None:
     init_migrate(script_location=dirs.DEFAULT)
 
     assert isfile(join(dirs.DEFAULT, 'alembic.ini'))
@@ -63,7 +69,7 @@ def test_init_creates_files_specified_folder(
 
 def test_init_creates_different_ini_file(
     dirs: TestDirectories,
-    init_migrate: Callable
+    init_migrate
 ) -> None:
     init_migrate(
         script_location=dirs.TEST,
@@ -76,7 +82,7 @@ def test_init_creates_different_ini_file(
 
 def test_revision_create(
     dirs: TestDirectories,
-    init_migrate: Callable
+    init_migrate
 ) -> None:
     m = init_migrate(script_location=dirs.DEFAULT)
 
@@ -103,7 +109,7 @@ def test_revision_create(
 
 def test_revision_create_auto(
     dirs: TestDirectories,
-    init_migrate: Callable
+    init_migrate
 ) -> None:
     init_migrate(script_location=dirs.DEFAULT)
 

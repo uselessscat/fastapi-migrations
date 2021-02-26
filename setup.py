@@ -1,22 +1,30 @@
+# type: ignore
+
 '''
 Fastapi migrations
 --------------
-# TODO: description here
+A small integration between Fastapi and Alembic.
 '''
 from setuptools import setup
+from toml import load
 
-version = open('__version__').read()
+pyproject = load('pyproject.toml')
+
 long_description = open('README.md', 'r').read()
-requirements = open('requirements.txt', 'r').read().splitlines()
-dev_requirements = open('requirements.dev.txt', 'r').read().splitlines()
+
+setup_info = pyproject.get('tool').get('poetry')
+version = setup_info.get('version')
+requirements = setup_info.get('dependencies').keys()
+dev_requirements = setup_info.get('dev-dependencies').keys()
+
 
 setup(
     name='fastapi-migrations',
     version=version,
-    url='https://github.com/uselessscat/fastapi-migrations',
+    url='https://github.com/patiprecios/fastapi-migrations',
     project_urls={
-        'Code': 'https://github.com/uselessscat/fastapi-migrations',
-        'Issues': 'https://github.com/uselessscat/fastapi-migrations/issues',
+        'Code': 'https://github.com/patiprecios/fastapi-migrations',
+        'Issues': 'https://github.com/patiprecios/fastapi-migrations/issues',
     },
     license='MIT',
     author='Ariel Carvajal',

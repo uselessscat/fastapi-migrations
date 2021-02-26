@@ -1,4 +1,5 @@
-import typing as t
+from typing import Type, Callable, Any, Generator, Dict, Optional 
+
 import shutil
 from os.path import isdir
 
@@ -13,20 +14,19 @@ class TestDirectories:
 
 
 @pytest.fixture
-def dirs() -> t.Type[TestDirectories]:
+def dirs() -> Type[TestDirectories]:
     return TestDirectories
 
 
-@pytest.fixture
 def init_migrate():
     mig_list = []
 
-    def instance_migrations(**kwargs):
+    def instance_migrations(**kwargs) -> Type[Migrations]:
         c = MigrationsConfig(**kwargs)
         m = Migrations(c)
         mig_list.append(m)
 
-        # check directory doesnt exists
+        # check directory doesn't exists
         assert not isdir(m.configuration.script_location)
 
         m.init()

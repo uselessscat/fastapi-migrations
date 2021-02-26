@@ -1,33 +1,32 @@
 [tool.poetry]
 name = "fastapi-migrations"
-version = "0.0.4"
-description = "A small integration between Fastapi and Alembic."
+version = "0.0.5"
+description = "Sqlalchemy integration with async support"
 authors = ["Ariel Carvajal <arie.cbpro@gmail.com>"]
 license = "MIT"
+
 
 [tool.poetry.dependencies]
 python = "^3.7"
 
 # main deps
-alembic = "^1.4.3"
+alembic = "^1.5.5"
 typer = "^0.3.2"
 pydantic = "^1.7.3"
 
 [tool.poetry.dev-dependencies]
 # lint
 flake8 = "^3.8.4"
-mypy = "^0.790"
-pylint = "^2.6.0"
-autopep8 = "^1.5.4"
+mypy = "^0.812"
+pylint = "^2.7.1"
+autopep8 = "^1.5.5"
 
 # tests
-pytest = "^6.2.1"
-
-# packaging
-setuptools = "^51.1.0"
-wheel = "^0.36.2"
-twine = "^3.3.0"
+pytest = "^6.2.2"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+# TODO: configure build
+#requires = ["poetry-core>=1.0.0"]
+#build-backend = "poetry.core.masonry.api"
+requires = ["setuptools", "wheel", "toml"]
+build-backend = "setuptools.build_meta"

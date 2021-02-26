@@ -8,8 +8,8 @@
       "group": "test",
       "label": "Run tests",
       "type": "shell",
-      "command": "venv/Scripts/pytest",
-      "args": ["--ignore=venv/*", "-v", "-s", "tests/*"],
+      "command": ".venv/Scripts/pytest",
+      "args": ["--ignore=.venv/*", "-v", "-s", "tests/*"],
       "presentation": {
         "reveal": "always"
       }
@@ -18,13 +18,13 @@
       "group": "test",
       "label": "Run coverage",
       "type": "shell",
-      "command": "venv/Scripts/coverage",
+      "command": ".venv/Scripts/coverage",
       "args": [
         "run",
-        "--omit=venv/*",
+        "--omit=.venv/*",
         "-m",
         "pytest",
-        "--ignore=venv/*",
+        "--ignore=.venv/*",
         "-v",
         "tests/"
       ],
@@ -36,7 +36,7 @@
       "group": "test",
       "label": "Run coverage with html",
       "type": "shell",
-      "command": "venv/Scripts/coverage",
+      "command": ".venv/Scripts/coverage",
       "args": ["html", "-i"],
       "presentation": {
         "reveal": "always"
@@ -47,8 +47,8 @@
       "group": "test",
       "label": "Run flake8",
       "type": "shell",
-      "command": "venv/Scripts/flake8",
-      "args": ["--exclude", "venv,.eggs"],
+      "command": ".venv/Scripts/flake8",
+      "args": ["--exclude", ".venv,.eggs"],
       "presentation": {
         "reveal": "always"
       }
@@ -57,7 +57,7 @@
       "group": "test",
       "label": "Run mypy",
       "type": "shell",
-      "command": "venv/Scripts/mypy",
+      "command": ".venv/Scripts/mypy",
       "args": ["--strict", "."],
       "presentation": {
         "reveal": "always"
