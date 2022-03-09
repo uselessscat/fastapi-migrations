@@ -1,3 +1,4 @@
 include __version__ README.md LICENSE \
     fastapi_migrations/templates/default/* \
+    fastapi_migrations/templates/default_async/* \
     fastapi_migrations/templates/multidb/*
