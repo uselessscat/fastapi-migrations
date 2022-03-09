@@ -46,6 +46,9 @@ class MigrationsConfig(BaseSettings):
         abspath(dirname(__file__)), 'templates'
     )
 
+    metadata_package: Optional[str]
+    metadata_class: Optional[str]
+
     file_template: str = '%%(rev)s'
     truncate_slug_length: str = '40'
 
@@ -75,6 +78,9 @@ class MigrationsConfig(BaseSettings):
             'truncate_slug_length',
             self.truncate_slug_length
         )
+
+        alembic.set_main_option('metadata_package', self.metadata_package or '')
+        alembic.set_main_option('metadata_class', self.metadata_class or '')
 
         return alembic
 

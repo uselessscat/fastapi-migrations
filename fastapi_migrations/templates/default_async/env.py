@@ -48,18 +48,20 @@ except:
 
 
 def get_metadata():
-    # add your model's MetaData object here
-    # for 'autogenerate' support
-    # from myapp import mymodel
-    # target_metadata = mymodel.Base.metadata
-    try:
-        from app.db.base import Base
-
-        return Base.metadata
-    except:
-        raise
-        # TODO: pass metadata though config
-        return None
+    import importlib
+    metadata_package_name = config.get_main_option('metadata_package')
+    metadata_class_name = config.get_main_option('metadata_class')
+    if metadata_package_name and metadata_class_name:
+        try:
+            metadata_package = importlib.import_module(metadata_package_name)
+            metadata_class = getattr(metadata_package, metadata_class_name)
+            return metadata_class.metadata
+        except Exception:
+            logging.error('Failed to import module.', metadata_package_name)
+            return None
+    else:
+        logging.info('Metadata package or class not provided.')
+    return None
 
 
 target_metadata = get_metadata()

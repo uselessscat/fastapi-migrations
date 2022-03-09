@@ -125,6 +125,16 @@ You can pass `sqlalchemy_async` parameter to config. It generates alembic async 
     config = MigrationsConfig()
     config.sqlalchemy_async = True
 
+
+# Metadata
+
+You can pass `metadata_package` and `metadata_class` parameters to config for use autogenerate feature.
+If you have structure described in this readme you should pass these options:
+
+    config = MigrationsConfig()
+    config.metadata_package = 'app.db.base'
+    config.metadata_class = 'Base'
+
 # License
 
 This software is distributed under [MIT license](LICENSE).
