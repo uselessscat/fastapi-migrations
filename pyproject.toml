@@ -7,7 +7,7 @@ license = "MIT"
 
 
 [tool.poetry.dependencies]
-python = "^3.7"
+# python = "^3.7"
 
 # main deps
 alembic = "^1.5.5"
