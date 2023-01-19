@@ -29,7 +29,7 @@ try:
     with db():
         config.set_main_option(
             'sqlalchemy.url',
-            str(db.session.get_bind().engine.url)
+            str(db.session.get_bind().engine.url).replace('%', '%%')
         )
 except Exception:
     # TODO: Add url to MigrationsConfig

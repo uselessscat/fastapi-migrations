@@ -33,7 +33,7 @@ try:
         async with db():
             config.set_main_option(
                 'sqlalchemy.url',
-                str(db.session.get_bind().engine.url)
+                str(db.session.get_bind().engine.url).replace('%', '%%')
             )
 
     loop = asyncio.get_event_loop()
