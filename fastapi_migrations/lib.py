@@ -34,15 +34,20 @@ def catch_errors(f):  # type: ignore
 
 class MigrationsConfig(BaseSettings):
     sqlalchemy_url: Optional[str]
+    sqlalchemy_async: bool = False
 
     script_location: str = 'migrations'
     config_file_name: str = 'alembic.ini'
 
     default_template_dir: str = 'default'
+    default_async_template_dir: str = 'default_async'
     multidb_template_dir: str = 'multidb'
     template_directory: str = join(
         abspath(dirname(__file__)), 'templates'
     )
+
+    metadata_package: Optional[str]
+    metadata_class: Optional[str]
 
     file_template: str = '%%(rev)s'
     truncate_slug_length: str = '40'
@@ -74,6 +79,9 @@ class MigrationsConfig(BaseSettings):
             self.truncate_slug_length
         )
 
+        alembic.set_main_option('metadata_package', self.metadata_package or '')
+        alembic.set_main_option('metadata_class', self.metadata_class or '')
+
         return alembic
 
     class Config:
@@ -93,10 +101,18 @@ class Migrations():
     ) -> Any:
         config: AlembicConfig = self.configuration.to_alembic_config()
 
+        if multidb:
+            template = self.configuration.multidb_template_dir
+        else:
+            if self.configuration.sqlalchemy_async:
+                template = self.configuration.default_async_template_dir
+            else:
+                template = self.configuration.default_template_dir
+
         return command.init(
             config,
             directory=self.configuration.script_location,
-            template='multidb' if multidb else 'default',
+            template=template,
             package=False
         )
 
