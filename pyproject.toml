@@ -1,32 +1,34 @@
-[tool.poetry]
+[project]
 name = "fastapi-migrations"
-version = "0.0.5"
+version = "0.0.6.dev1"
 description = "Sqlalchemy integration with async support"
-authors = ["Ariel Carvajal <arie.cbpro@gmail.com>"]
+authors = [{ name = "Ariel Carvajal", email = "arie.cbpro@gmail.com" }]
 license = "MIT"
+readme = "README.md"
 
+requires-python = ">=3.7"
+dependencies = [
+    "alembic>=1.5.5",
+    "typer>=0.3.2",
+    "pydantic>=1.7.3,<2.0.0"
+]
 
-[tool.poetry.dependencies]
-python = "^3.7"
-
-# main deps
-alembic = "^1.5.5"
-typer = "^0.3.2"
-pydantic = "^1.7.3"
-
-[tool.poetry.dev-dependencies]
-# lint
-flake8 = "^3.8.4"
-mypy = "^0.812"
-pylint = "^2.7.1"
-autopep8 = "^1.5.5"
-
-# tests
-pytest = "^6.2.2"
+[dependency-groups]
+quality = [
+    "flake8>=3.8.4",
+    "mypy>=0.812",
+    "pylint>=2.7.1",
+    "autopep8>=1.5.5",
+]
+tests = [
+    "coverage>=7.2.7",
+    "pytest>=6.2.2",
+]
+dev = [
+    { include-group = "quality" },
+    { include-group = "tests" },
+]
 
 [build-system]
-# TODO: configure build
-#requires = ["poetry-core>=1.0.0"]
-#build-backend = "poetry.core.masonry.api"
 requires = ["setuptools", "wheel", "toml"]
 build-backend = "setuptools.build_meta"

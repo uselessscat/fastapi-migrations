@@ -12,10 +12,10 @@ pyproject = load('pyproject.toml')
 
 long_description = open('README.md', 'r').read()
 
-setup_info = pyproject.get('tool').get('poetry')
-version = setup_info.get('version')
-requirements = setup_info.get('dependencies').keys()
-dev_requirements = setup_info.get('dev-dependencies').keys()
+project = pyproject.get('project')
+version = project.get('version')
+requirements = project.get('dependencies')
+tests_requirements = pyproject.get('dependency-groups').get('tests')
 
 
 setup(
@@ -37,7 +37,7 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=requirements,
-    tests_require=dev_requirements,
+    tests_require=tests_requirements,
     test_suite='tests',
     classifiers=[
         'Environment :: Web Environment',

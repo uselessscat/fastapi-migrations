@@ -11,14 +11,14 @@
 
 This library provides a small wrapper for alembic.
 
-### Notice
+## Notice
 
-**Under inital development. This can not be ready-for-production library.**
+**Under initial development. This may not be ready-for-production library.**
 
 This can means:
 
 - Breaking changes may be introduced
-- Poor documentation and changeslogs
+- Poor documentation and changelogs
 - Not totally tested
 - Be forced to navigate through the source code to find out how it works
 
@@ -32,7 +32,7 @@ You can install this library with:
 
 ## Usage
 
-You can use both programatically and by CLI (command line interface).
+You can use both programmatically and by CLI (command line interface).
 
 Imagine your project folders
 
@@ -117,6 +117,6 @@ You can add this lines where you wish in your proyect. Here we ar adding it to a
 
     py app/main.py action show
 
-# License
+## License
 
 This software is distributed under [MIT license](LICENSE).

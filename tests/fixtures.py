@@ -18,6 +18,7 @@ def dirs() -> Type[TestDirectories]:
     return TestDirectories
 
 
+@pytest.fixture
 def init_migrate():
     mig_list = []
 
