@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "pytest",
-            "args": ["--ignore=venv/*", "-v", "-s", "tests/*"]
+            "args": ["--ignore=.venv/*", "-v", "-s", "tests/*"]
         }
     ]
 }

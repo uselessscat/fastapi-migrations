@@ -5,7 +5,7 @@ import logging
 from functools import wraps
 from os.path import join, abspath, dirname
 
-from pydantic import BaseSettings, Extra
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from alembic import command
 from alembic import __version__ as __alembic_version__
@@ -33,7 +33,11 @@ def catch_errors(f):  # type: ignore
 
 
 class MigrationsConfig(BaseSettings):
-    sqlalchemy_url: Optional[str]
+    model_config = SettingsConfigDict(
+        extra='allow',
+    )
+
+    sqlalchemy_url: Optional[str] = None
 
     script_location: str = 'migrations'
     config_file_name: str = 'alembic.ini'
@@ -75,9 +79,6 @@ class MigrationsConfig(BaseSettings):
         )
 
         return alembic
-
-    class Config:
-        extra = Extra.allow
 
 
 class Migrations():
@@ -186,12 +187,9 @@ class Migrations():
         self,
         revision: str = 'current'
     ) -> Any:
-        if alembic_version >= (0, 8, 0):
-            config = self.configuration.to_alembic_config()
+        config = self.configuration.to_alembic_config()
 
-            return command.edit(config, revision)
-        else:
-            raise RuntimeError('Alembic 0.8.0 or greater is required')
+        return command.edit(config, revision)
 
     def merge(
         self,
@@ -226,19 +224,12 @@ class Migrations():
     ) -> Any:
         config = self.configuration.to_alembic_config()
 
-        if alembic_version >= (0, 9, 9):
-            return command.history(
-                config,
-                rev_range,
-                verbose=verbose,
-                indicate_current=indicate_current
-            )
-        else:
-            return command.history(
-                config,
-                rev_range,
-                verbose=verbose
-            )
+        return command.history(
+            config,
+            rev_range,
+            verbose=verbose,
+            indicate_current=indicate_current
+        )
 
     def heads(
         self,
@@ -264,15 +255,27 @@ class Migrations():
     def current(
         self,
         verbose: bool = False,
-        head_only: bool = False
+        check_heads: bool = False
     ) -> Any:
         config = self.configuration.to_alembic_config()
 
-        return command.current(
-            config,
-            verbose=verbose,
-            head_only=head_only
-        )
+        if alembic_version >= (1, 17, 1):
+            return command.current(
+                config,
+                check_heads=check_heads,
+                verbose=verbose,
+            )
+        elif alembic_version >= (1, 5, 0):
+            return command.current(
+                config,
+                verbose=verbose,
+            )
+        else:
+            return command.current(
+                config,
+                verbose=verbose,
+                head_only=check_heads,
+            )
 
     def stamp(
         self,
